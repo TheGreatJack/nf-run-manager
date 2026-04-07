@@ -102,14 +102,12 @@ if [[ ${#EXTRA_NF_ARGS[@]} -gt 0 ]]; then
 fi
 echo "──────────────────────────────────────────────"
 
-# ── Activate conda environment ────────────────────────────────────────────────
-CONDA_BASE=$(conda info --base 2>/dev/null) || {
-    echo "Error: conda not found in PATH" >&2
+# ── Verify Java is available (required by Nextflow) ──────────────────────────
+command -v java >/dev/null 2>&1 || {
+    echo "Error: java not found in PATH (required by Nextflow)" >&2
+    echo "Install OpenJDK 11+ via conda, sdkman, or your package manager." >&2
     exit 1
 }
-# shellcheck disable=SC1091
-source "${CONDA_BASE}/etc/profile.d/conda.sh"
-conda activate nf-core
 
 # ── Run Nextflow ──────────────────────────────────────────────────────────────
 set +e
