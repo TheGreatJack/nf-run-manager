@@ -1,0 +1,7 @@
+{
+    "input": "s3://your-bucket/datasets/my_dataset/samplesheet.csv",
+    "genome": "s3://your-bucket/datasets/my_dataset/genome/genome.fasta.gz",
+    "method": "reference",
+    "sequence_type": "PE",
+    "aligner": "bwa-mem2"
+}

@@ -1,0 +1,10 @@
+{
+    "input": "/absolute/path/to/samplesheet.csv",
+    "genome": "/absolute/path/to/genome.fasta.gz",
+    "method": "reference",
+    "sequence_type": "PE",
+    "aligner": "bwa-mem2",
+    "max_cpus": 4,
+    "max_memory": "8.GB",
+    "max_time": "2.h"
+}

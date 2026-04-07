@@ -1,0 +1,3 @@
+sample,fastq_1,fastq_2,umi_barcodes
+sample_01,s3://your-bucket/datasets/my_dataset/fastqs/sample_01_R1.fastq.gz,s3://your-bucket/datasets/my_dataset/fastqs/sample_01_R2.fastq.gz,false
+sample_02,s3://your-bucket/datasets/my_dataset/fastqs/sample_02_R1.fastq.gz,s3://your-bucket/datasets/my_dataset/fastqs/sample_02_R2.fastq.gz,false

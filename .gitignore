@@ -1,0 +1,31 @@
+# ── Project config (contains credentials) ────────────────────────────────────
+.env
+
+# ── Large data files ──────────────────────────────────────────────────────────
+data/test_data/*/fastqs/
+data/test_data/*/genome/
+
+# ── Run outputs (can be large) ────────────────────────────────────────────────
+runs/*/workdir/
+runs/*/publishDir/
+runs/*/outputs/
+runs/*/nextflow.log
+
+# ── Nextflow cache ────────────────────────────────────────────────────────────
+.nextflow/
+.nextflow.log*
+
+# ── Nextflow binaries ─────────────────────────────────────────────────────────
+nextflow_binaries/
+
+# ── Workflow repo (managed as a separate project) ─────────────────────────────
+workflow/
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+
+# ── OS / editor lock files ────────────────────────────────────────────────────
+.DS_Store
+.~lock.*
