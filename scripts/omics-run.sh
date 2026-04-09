@@ -37,11 +37,11 @@ set -uo pipefail
 # ── Project paths ─────────────────────────────────────────────────────────────
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REGISTRY="${PROJECT_ROOT}/runs/run_registry.tsv"
-WORKFLOW_DIR="${PROJECT_ROOT}/workflow/onionomics-nextflow"
-
 # ── Source project config ─────────────────────────────────────────────────────
 CONFIG_FILE="${PROJECT_ROOT}/.env"
 [[ -f "${CONFIG_FILE}" ]] && source "${CONFIG_FILE}"
+
+WORKFLOW_DIR="${NF_RUNNER_WORKFLOW_DIR:-${PROJECT_ROOT}/workflow}"
 
 # ── AWS / project defaults (overridable via .env or CLI flags) ────────────────
 AWS_PROFILE="${NF_RUNNER_AWS_PROFILE:-}"

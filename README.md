@@ -78,6 +78,7 @@ The `.env` file is automatically sourced by every script. See `.env.example` for
 
 | Variable | Used by | Description |
 |---|---|---|
+| `NF_RUNNER_WORKFLOW_DIR` | `nf-run.sh`, `omics-run.sh`, `batch-run.sh` | Path to local pipeline repo (default: `workflow/`) |
 | `NF_RUNNER_AWS_PROFILE` | all cloud scripts | AWS CLI SSO profile name |
 | `NF_RUNNER_REGION` | all cloud scripts | AWS region (default: `us-east-1`) |
 | `NF_RUNNER_WORKFLOW_ID` | `omics-run.sh` | HealthOmics workflow ID |
