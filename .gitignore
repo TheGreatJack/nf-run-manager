@@ -1,15 +1,15 @@
 # ── Project config (contains credentials) ────────────────────────────────────
 .env
 
-# ── Large data files ──────────────────────────────────────────────────────────
-data/test_data/*/fastqs/
-data/test_data/*/genome/
+# ── Test data (local only, not tracked) ───────────────────────────────────────
+data/test_data/
 
 # ── Run outputs (can be large) ────────────────────────────────────────────────
 runs/*/workdir/
 runs/*/publishDir/
 runs/*/outputs/
 runs/*/nextflow.log
+runs/*/params.yaml
 
 # ── Nextflow cache ────────────────────────────────────────────────────────────
 .nextflow/
