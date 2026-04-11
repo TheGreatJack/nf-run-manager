@@ -11,7 +11,7 @@
 #   --name <label>                     Human label appended to the run name (date_dataset_<label>)
 #   --dataset <name>                   Dataset key (must exist under data/test_data/)
 #   --params <file>                    Pipeline params JSON (must use S3 paths)
-#   --role-arn <arn>                   IAM role ARN for HealthOmics execution
+#   --role-arn <arn>                   IAM role ARN for HealthOmics execution [$NF_RUNNER_ROLE_ARN]
 #
 # Optional — HealthOmics workflow (defaults from .env)
 #   --workflow-id <id>                 [$NF_RUNNER_WORKFLOW_ID]
@@ -57,7 +57,7 @@ DEFAULT_POLL_INTERVAL=60
 NAME=""
 DATASET=""
 PARAMS=""
-ROLE_ARN=""
+ROLE_ARN="${NF_RUNNER_ROLE_ARN:-}"
 WORKFLOW_ID="${DEFAULT_WORKFLOW_ID}"
 WORKFLOW_VERSION_NAME="${DEFAULT_WORKFLOW_VERSION_NAME}"
 OUTPUT_URI="${DEFAULT_OUTPUT_URI}"
@@ -139,7 +139,6 @@ START_RUN_ARGS=(
     --profile  "${AWS_PROFILE}"
     --region   "${REGION}"
     --workflow-id             "${WORKFLOW_ID}"
-    --workflow-version-name   "${WORKFLOW_VERSION_NAME}"
     --output-uri              "${OUTPUT_URI}"
     --role-arn                "${ROLE_ARN}"
     --name                    "${RUN_NAME}"
@@ -147,6 +146,7 @@ START_RUN_ARGS=(
     --storage-type            "${STORAGE_TYPE}"
     --parameters              "file://${RUN_DIR}/${PARAMS_FILENAME}"
 )
+[[ -n "${WORKFLOW_VERSION_NAME}" ]] && START_RUN_ARGS+=(--workflow-version-name "${WORKFLOW_VERSION_NAME}")
 [[ -n "${STORAGE_CAPACITY}" ]] && START_RUN_ARGS+=(--storage-capacity "${STORAGE_CAPACITY}")
 [[ -n "${RUN_GROUP_ID}" ]]     && START_RUN_ARGS+=(--run-group-id     "${RUN_GROUP_ID}")
 [[ -n "${CACHE_ID}" ]]         && START_RUN_ARGS+=(--cache-id         "${CACHE_ID}")

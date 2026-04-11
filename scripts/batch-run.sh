@@ -13,9 +13,9 @@
 #   --dataset <name>               Dataset key (used as a label — no local validation)
 #   --params <file>                Local params file stored as audit copy in the run folder
 #   --job-queue <name>             AWS Batch head job queue name
-#                                  (terraform: terraform -chdir=infra output -raw head_queue_name)
+#                                  [$NF_RUNNER_BATCH_JOB_QUEUE or --job-queue flag]
 #   --job-definition <name>        AWS Batch job definition name
-#                                  (terraform: terraform -chdir=infra output -raw job_definition_name)
+#                                  [$NF_RUNNER_BATCH_JOB_DEFINITION or --job-definition flag]
 #
 # Optional — Nextflow pipeline settings (defaults from .env)
 #   --pipeline <repo>              Pipeline to run          [$NF_RUNNER_PIPELINE]
@@ -53,19 +53,21 @@ WORKFLOW_DIR="${NF_RUNNER_WORKFLOW_DIR:-${PROJECT_ROOT}/workflow}"
 # ── AWS / project defaults (overridable via .env or CLI flags) ────────────────
 AWS_PROFILE="${NF_RUNNER_AWS_PROFILE:-}"
 DEFAULT_PIPELINE="${NF_RUNNER_PIPELINE:-}"
-DEFAULT_REVISION="${NF_RUNNER_REVISION:-main}"
+DEFAULT_REVISION="${NF_RUNNER_REVISION-main}"
 DEFAULT_NF_PROFILE="docker"
 DEFAULT_WORKDIR="${NF_RUNNER_BATCH_WORKDIR:-}"
 DEFAULT_OUTPUT_URI="${NF_RUNNER_BATCH_OUTPUT_URI:-}"
 DEFAULT_REGION="${NF_RUNNER_REGION:-us-east-1}"
+DEFAULT_JOB_QUEUE="${NF_RUNNER_BATCH_JOB_QUEUE:-}"
+DEFAULT_JOB_DEFINITION="${NF_RUNNER_BATCH_JOB_DEFINITION:-}"
 DEFAULT_POLL_INTERVAL=60
 
 # ── Argument parsing ──────────────────────────────────────────────────────────
 NAME=""
 DATASET=""
 PARAMS=""
-JOB_QUEUE=""
-JOB_DEFINITION=""
+JOB_QUEUE="${DEFAULT_JOB_QUEUE}"
+JOB_DEFINITION="${DEFAULT_JOB_DEFINITION}"
 PIPELINE="${DEFAULT_PIPELINE}"
 REVISION="${DEFAULT_REVISION}"
 NF_PROFILE="${DEFAULT_NF_PROFILE}"
