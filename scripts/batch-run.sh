@@ -124,6 +124,7 @@ PURPOSE="${PURPOSE//$'\t'/ }"
 DATE=$(date +%Y-%m-%d)
 RUN_NAME="${DATE}_${DATASET}_${NAME}"
 RUN_DIR="${PROJECT_ROOT}/runs/${RUN_NAME}"
+OUTPUT_URI_RUN="${OUTPUT_URI%/}/${RUN_NAME}"
 
 [[ -d "${RUN_DIR}" ]] && {
     echo "Error: Run folder already exists: runs/${RUN_NAME}" >&2
@@ -146,7 +147,7 @@ CONTAINER_OVERRIDES=$(
     NF_PIPELINE="${PIPELINE}" \
     NF_REVISION="${REVISION}" \
     NF_PROFILE="${NF_PROFILE}" \
-    NF_OUTDIR="${OUTPUT_URI}" \
+    NF_OUTDIR="${OUTPUT_URI_RUN}" \
     NF_WORKDIR="${WORKDIR}" \
     NF_EXTRA_ARGS="${EXTRA_ARGS}" \
     NXF_CONFIG_S3="${CONFIG_S3}" \
@@ -178,6 +179,9 @@ print(json.dumps({"environment": env}))
 '
 )
 
+# ── Save container-overrides JSON to run folder ──────────────────────────────
+echo "${CONTAINER_OVERRIDES}" > "${RUN_DIR}/container_overrides.json"
+
 # ── Print summary ─────────────────────────────────────────────────────────────
 echo "──────────────────────────────────────────────"
 echo "  Run name       : ${RUN_NAME}"
@@ -185,7 +189,7 @@ echo "  Dataset        : ${DATASET}"
 echo "  Params         : ${PARAMS_FILENAME}"
 echo "  Pipeline       : ${PIPELINE} @ ${REVISION}"
 echo "  NF profile     : ${NF_PROFILE}"
-echo "  Output URI     : ${OUTPUT_URI}"
+echo "  Output URI     : ${OUTPUT_URI_RUN}"
 echo "  Work dir       : ${WORKDIR}"
 echo "  Job queue      : ${JOB_QUEUE}"
 echo "  Job definition : ${JOB_DEFINITION}"
@@ -194,6 +198,19 @@ echo "  Region         : ${REGION}"
 [[ -n "${CONFIG_S3}" ]]  && echo "  Config S3      : ${CONFIG_S3}"
 [[ -n "${INPUT_S3}" ]]   && echo "  Input S3       : ${INPUT_S3}"
 echo "──────────────────────────────────────────────"
+
+# ── Save the full submit-job command ─────────────────────────────────────────
+cat > "${RUN_DIR}/submit_job_cmd.sh" <<EOF
+#!/usr/bin/env bash
+aws batch submit-job \\
+    --profile             "${AWS_PROFILE}" \\
+    --region              "${REGION}" \\
+    --job-name            "${RUN_NAME}" \\
+    --job-queue           "${JOB_QUEUE}" \\
+    --job-definition      "${JOB_DEFINITION}" \\
+    --container-overrides "file://\$(dirname "\$0")/container_overrides.json"
+EOF
+chmod +x "${RUN_DIR}/submit_job_cmd.sh"
 
 # ── Submit the job ─────────────────────────────────────────────────────────────
 echo "Submitting job to AWS Batch..."
@@ -231,7 +248,7 @@ printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" \
     "${RUN_NAME}" "${JOB_ID}" "${DATE}" "${DATASET}" \
     "${PIPELINE_VERSION}" "${GIT_COMMIT}" "unknown" \
     "${INPUT_PARAMS}" "submitted" "batch" \
-    "${OUTPUT_URI}" \
+    "${OUTPUT_URI_RUN}" \
     "${PURPOSE}" "FILL_ME" \
     >> "${REGISTRY}"
 echo "Registered in run_registry.tsv (status: submitted)"

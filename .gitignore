@@ -4,12 +4,8 @@
 # ── Test data (local only, not tracked) ───────────────────────────────────────
 data/test_data/
 
-# ── Run outputs (can be large) ────────────────────────────────────────────────
-runs/*/workdir/
-runs/*/publishDir/
-runs/*/outputs/
-runs/*/nextflow.log
-runs/*/params.yaml
+# ── Run folders (local audit artifacts, not tracked) ─────────────────────────
+runs/*/
 
 # ── Nextflow cache ────────────────────────────────────────────────────────────
 .nextflow/
