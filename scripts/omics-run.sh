@@ -134,6 +134,9 @@ PARAMS_FILENAME=$(basename "${PARAMS}")
 cp "${PARAMS}" "${RUN_DIR}/${PARAMS_FILENAME}"
 INPUT_PARAMS="runs/${RUN_NAME}/${PARAMS_FILENAME}"
 
+# ── Build tags JSON ───────────────────────────────────────────────────────────
+TAGS=$(python3 -c "import json; print(json.dumps({'project': 'rnaseq-omics', 'runName': '${RUN_NAME}'}))")
+
 # ── Build start-run argument list ────────────────────────────────────────────
 START_RUN_ARGS=(
     --profile  "${AWS_PROFILE}"
@@ -145,6 +148,7 @@ START_RUN_ARGS=(
     --log-level               "${LOG_LEVEL}"
     --storage-type            "${STORAGE_TYPE}"
     --parameters              "file://${RUN_DIR}/${PARAMS_FILENAME}"
+    --tags                    "${TAGS}"
 )
 [[ -n "${WORKFLOW_VERSION_NAME}" ]] && START_RUN_ARGS+=(--workflow-version-name "${WORKFLOW_VERSION_NAME}")
 [[ -n "${STORAGE_CAPACITY}" ]] && START_RUN_ARGS+=(--storage-capacity "${STORAGE_CAPACITY}")

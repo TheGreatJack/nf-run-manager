@@ -29,6 +29,8 @@
 #                                  e.g. "--max_memory 16.GB --max_cpus 8 -params-file s3://..."
 #   --config-s3 <s3://...>         S3 URI of a custom nextflow.config (NXF_CONFIG_S3)
 #   --input-s3 <s3://...>          S3 URI of the samplesheet (NF_INPUT)
+#   --params-s3 <s3://...>         S3 URI of a Nextflow params JSON (NF_PARAMS_S3)
+#                                  Downloaded to the instance before Nextflow launches
 #
 # Optional — AWS settings
 #   --profile <name>               AWS CLI SSO profile  [$NF_RUNNER_AWS_PROFILE]
@@ -76,6 +78,7 @@ OUTPUT_URI="${DEFAULT_OUTPUT_URI}"
 EXTRA_ARGS=""
 CONFIG_S3=""
 INPUT_S3=""
+PARAMS_S3=""
 REGION="${DEFAULT_REGION}"
 NO_WAIT=false
 POLL_INTERVAL="${DEFAULT_POLL_INTERVAL}"
@@ -96,6 +99,7 @@ while [[ $# -gt 0 ]]; do
         --extra-args)      EXTRA_ARGS="${2}";      shift 2 ;;
         --config-s3)       CONFIG_S3="${2}";       shift 2 ;;
         --input-s3)        INPUT_S3="${2}";        shift 2 ;;
+        --params-s3)       PARAMS_S3="${2}";       shift 2 ;;
         --profile)         AWS_PROFILE="${2}";     shift 2 ;;
         --region)          REGION="${2}";          shift 2 ;;
         --no-wait)         NO_WAIT=true;           shift   ;;
@@ -152,6 +156,7 @@ CONTAINER_OVERRIDES=$(
     NF_EXTRA_ARGS="${EXTRA_ARGS}" \
     NXF_CONFIG_S3="${CONFIG_S3}" \
     NF_INPUT="${INPUT_S3}" \
+    NF_PARAMS_S3="${PARAMS_S3}" \
     python3 -c '
 import json, os
 
@@ -175,9 +180,16 @@ input_s3 = os.environ.get("NF_INPUT", "").strip()
 if input_s3:
     env.append({"name": "NF_INPUT", "value": input_s3})
 
+params_s3 = os.environ.get("NF_PARAMS_S3", "").strip()
+if params_s3:
+    env.append({"name": "NF_PARAMS_S3", "value": params_s3})
+
 print(json.dumps({"environment": env}))
 '
 )
+
+# ── Build tags JSON ───────────────────────────────────────────────────────────
+TAGS=$(python3 -c "import json; print(json.dumps({'project': 'rnaseq-batch', 'runName': '${RUN_NAME}'}))")
 
 # ── Save container-overrides JSON to run folder ──────────────────────────────
 echo "${CONTAINER_OVERRIDES}" > "${RUN_DIR}/container_overrides.json"
@@ -197,6 +209,7 @@ echo "  Region         : ${REGION}"
 [[ -n "${EXTRA_ARGS}" ]] && echo "  Extra args     : ${EXTRA_ARGS}"
 [[ -n "${CONFIG_S3}" ]]  && echo "  Config S3      : ${CONFIG_S3}"
 [[ -n "${INPUT_S3}" ]]   && echo "  Input S3       : ${INPUT_S3}"
+[[ -n "${PARAMS_S3}" ]]  && echo "  Params S3      : ${PARAMS_S3}"
 echo "──────────────────────────────────────────────"
 
 # ── Save the full submit-job command ─────────────────────────────────────────
@@ -208,6 +221,7 @@ aws batch submit-job \\
     --job-name            "${RUN_NAME}" \\
     --job-queue           "${JOB_QUEUE}" \\
     --job-definition      "${JOB_DEFINITION}" \\
+    --tags                '${TAGS}' \\
     --container-overrides "file://\$(dirname "\$0")/container_overrides.json"
 EOF
 chmod +x "${RUN_DIR}/submit_job_cmd.sh"
@@ -221,6 +235,7 @@ RESPONSE=$(aws batch submit-job \
     --job-name            "${RUN_NAME}" \
     --job-queue           "${JOB_QUEUE}" \
     --job-definition      "${JOB_DEFINITION}" \
+    --tags                "${TAGS}" \
     --container-overrides "${CONTAINER_OVERRIDES}" 2>&1)
 SUBMIT_EXIT=$?
 set -e
